@@ -70,6 +70,12 @@ class TrignoBase():
         self.SensorCount = len(self.all_scanned_sensors)
         for i in range(self.SensorCount):
             self.TrigBase.SelectSensor(i)
+            
+            # Set to desired mode:
+            sample_mode_str = 'EMG raw x4 (1111Hz), +/-5.5mV, 20-450Hz'
+            print(f'[INFO] Setting sample mode to: {sample_mode_str}')
+            self.setSampleMode(i, sample_mode_str)
+            print(f'[INFO] Current sample mode: {self.getCurMode(i)}')
 
         return self.all_scanned_sensors
 
