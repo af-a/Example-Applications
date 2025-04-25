@@ -2,12 +2,12 @@ import csv
 
 
 class CsvWriter:
-    filename = "data.csv"
 
-    def __init__(self):
+    def __init__(self, filename="data.csv"):
         self.h1_sensors = []
         self.h2_channels = []
         self.data = [[]]
+        self.filename = filename
 
     def appendSensorHeader(self, sensor):
         self.h1_sensors.append("(" + str(sensor.PairNumber) + ")" + sensor.FriendlyName)
