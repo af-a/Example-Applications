@@ -16,11 +16,13 @@ from tkinter import filedialog
 from DataCollector.CollectionMetricsManagement import CollectionMetricsManagement
 from Plotter import GenericPlot as gp
 
+from DataCollector.ClassificationIndicatorWindow import ClassificationsWindow
+
 
 class CollectDataWindow(QWidget):
     plot_enabled = False
 
-    def __init__(self, controller):
+    def __init__(self, controller, with_classifications_indicator=False):
         QWidget.__init__(self)
         self.pipelinetext = "Off"
         self.controller = controller
@@ -49,6 +51,12 @@ class CollectDataWindow(QWidget):
         self.setWindowTitle("Collect Data GUI")
         self.pairing = False
         self.selectedSensor = None
+        
+        # Add classification indicator window:
+        self.with_classifications_indicator = with_classifications_indicator
+        if self.with_classifications_indicator:
+            self.classifications_window = ClassificationsWindow()
+            self.classifications_window.show()
 
     def AddPlotPanel(self):
         self.plotPanel = self.Plotter()
