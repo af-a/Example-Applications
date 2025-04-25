@@ -11,7 +11,7 @@ load("coreclr")
 import clr
 import csv
 
-clr.AddReference("resources\DelsysAPI")
+clr.AddReference("resources/DelsysAPI")
 clr.AddReference("System.Collections")
 
 from Aero import AeroPy
