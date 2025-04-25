@@ -62,11 +62,11 @@ class CollectDataWindow(QWidget):
         self.plotPanel = self.Plotter()
         self.grid.addWidget(self.plotPanel, 0, 2)
 
-    def SetCallbackConnector(self):
+    def SetCallbackConnector(self, debug=False):
         if self.plot_enabled:
-            self.CallbackConnector = PlottingManagement(self, self.MetricsConnector, self.plotCanvas)
+            self.CallbackConnector = PlottingManagement(self, self.MetricsConnector, self.plotCanvas, with_classifications_indicator=self.with_classifications_indicator, debug=debug)
         else:
-            self.CallbackConnector = PlottingManagement(self, self.MetricsConnector)
+            self.CallbackConnector = PlottingManagement(self, self.MetricsConnector, with_classifications_indicator=self.with_classifications_indicator, debug=debug)
 
     # -----------------------------------------------------------------------
     # ---- GUI Components
