@@ -23,6 +23,7 @@ class ClassificationsWindow(QWidget):
         self.setWindowTitle('Classifications Indicator')
         self.setMinimumWidth(400)
         self.setMinimumHeight(400)
+        self.setGeometry(100, 100, 400, 400)
 
         self.setAutoFillBackground(True)
 
