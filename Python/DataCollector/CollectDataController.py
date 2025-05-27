@@ -64,7 +64,7 @@ default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-gr
 
 
 class PlottingManagement():
-    def __init__(self, collect_data_window, metrics, emgplot=None):
+    def __init__(self, collect_data_window, metrics, emgplot=None, with_classifications_indicator=False, debug=False):
         self.base = TrignoBase(self)
         self.collect_data_window = collect_data_window
         self.EMGplot = emgplot
@@ -325,6 +325,9 @@ class PlottingManagement():
         if not self.streamYTData:
             self.t1 = threading.Thread(target=self.streaming)
             self.t1.start()
+            
+            self.tc = threading.Thread(target=self.classification_thread)
+            self.tc.start()
 
         # Start YT data stream (with time values)
         else:
