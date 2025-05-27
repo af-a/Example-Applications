@@ -11,13 +11,13 @@ load("coreclr")
 import clr
 import csv
 
-clr.AddReference("resources/DelsysAPI")
+clr.AddReference("resources\DelsysAPI")
 clr.AddReference("System.Collections")
 
 from Aero import AeroPy
 
-key = ""
-license = ""
+key = "MIIBKjCB4wYHKoZIzj0CATCB1wIBATAsBgcqhkjOPQEBAiEA/////wAAAAEAAAAAAAAAAAAAAAD///////////////8wWwQg/////wAAAAEAAAAAAAAAAAAAAAD///////////////wEIFrGNdiqOpPns+u9VXaYhrxlHQawzFOw9jvOPD4n0mBLAxUAxJ02CIbnBJNqZnjhE50mt4GffpAEIQNrF9Hy4SxCR/i85uVjpEDydwN9gS3rM6D0oTlF2JjClgIhAP////8AAAAA//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABAEu4d8Qg556AwxaLhAUNtKilChZytPqKQ/I+F/cx/hOIr7SzVtZbHqiI6eVOHtHInBFU+suljbYB0wtvmSts7E="
+license = "<License>  <Id>40ffa06a-3940-4d03-ae7a-4d0eb5d9b482</Id>  <Type>Standard</Type>  <Quantity>10</Quantity>  <LicenseAttributes>    <Attribute name='Software'></Attribute>  </LicenseAttributes>  <ProductFeatures>    <Feature name='Sales'>True</Feature>    <Feature name='Billing'>False</Feature>  </ProductFeatures>  <Customer>    <Name>Technical University Munich</Name>    <Email>mhilman.fatoni@tum.de</Email>  </Customer>  <Expiration>Mon, 25 Sep 2034 23:00:00 GMT</Expiration>  <Signature>MEUCIHJ0XgUAq3Zhv4MOMqRP9pS4PDfuK2+ZZHJ4hELQ6sN/AiEAgsE1wCys+N6jHxkYErNHEeY7WwChML6aXZwf2q919NQ=</Signature></License>"
 
 
 class TrignoBase():
@@ -60,22 +60,48 @@ class TrignoBase():
             time.sleep(1)
             self.Scan_Callback()
 
+
         self.all_scanned_sensors = self.TrigBase.GetScannedSensorsFound()
+        # Omit non-selected sensors using IDs:
+        selected_sensor_ids = [4]
+        # selected_sensor_ids = [5]
+        orig_sensor_count = len(self.all_scanned_sensors)
+        # self.all_scanned_sensors = [sensor for sensor in self.all_scanned_sensors if sensor.PairNumber in selected_sensor_ids]
+        
         print("Sensors Found:\n")
         for sensor in self.all_scanned_sensors:
             print("(" + str(sensor.PairNumber) + ") " +
                 sensor.FriendlyName + "\n" +
                 sensor.Configuration.ModeString + "\n")
 
-        self.SensorCount = len(self.all_scanned_sensors)
-        for i in range(self.SensorCount):
-            self.TrigBase.SelectSensor(i)
+        # self.SensorCount = len(self.all_scanned_sensors)
+        # for i in range(self.SensorCount):
+        #     self.TrigBase.SelectSensor(i)
             
-            # Set to desired mode:
-            sample_mode_str = 'EMG raw x4 (1111Hz), +/-5.5mV, 20-450Hz'
-            print(f'[INFO] Setting sample mode to: {sample_mode_str}')
-            self.setSampleMode(i, sample_mode_str)
-            print(f'[INFO] Current sample mode: {self.getCurMode(i)}')
+        #     # Set to desired mode:
+        #     # sample_mode_str = 'EMG raw x4 (1111Hz), +/-5.5mV, 20-450Hz'
+        #     sample_mode_str = 'EMG raw x4 (2222Hz), +/-5.5mV, 20-450Hz'
+        #     print(f'[INFO] Setting sample mode to: {sample_mode_str}')
+        #     self.setSampleMode(i, sample_mode_str)
+        #     print(f'[INFO] Current sample mode: {self.getCurMode(i)}')
+            
+        for i in range(orig_sensor_count):
+            sensor = self.TrigBase.GetSensorObject(i)
+            self.TrigBase.SelectSensor(i)
+            # print(f'[DEBUG] sensor.PairNumber, i: {sensor.PairNumber}, {i}')
+            
+            if sensor.PairNumber in selected_sensor_ids:
+                # self.TrigBase.SelectSensor(i)
+
+                # Set to desired mode:
+                # sample_mode_str = 'EMG raw x4 (1111Hz), +/-5.5mV, 20-450Hz'
+                sample_mode_str = 'EMG raw x4 (2222Hz), +/-5.5mV, 20-450Hz'
+                print(f'[INFO] Setting sample mode to: {sample_mode_str}')
+                self.setSampleMode(i, sample_mode_str)
+                print(f'[INFO] Current sample mode: {self.getCurMode(i)}')
+                
+        self.all_scanned_sensors = [sensor for sensor in self.all_scanned_sensors if sensor.PairNumber in selected_sensor_ids]
+        self.SensorCount = len(self.all_scanned_sensors)
 
         return self.all_scanned_sensors
 
@@ -221,7 +247,8 @@ class TrignoBase():
 
     def getCurMode(self, sensorIdx):
         """Gets the current mode of the sensors"""
-        if sensorIdx >= 0 and sensorIdx <= self.SensorCount:
+        # if sensorIdx >= 0 and sensorIdx <= self.SensorCount:
+        if sensorIdx >= 0:
             curModes = self.TrigBase.GetCurrentSensorMode(sensorIdx)
             return curModes
         else:

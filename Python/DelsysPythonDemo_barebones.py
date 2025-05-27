@@ -12,7 +12,8 @@ from collections import deque
 import keyboard
 import pandas as pd
 
-from franka_emg_grasping import emg_classification
+# from franka_emg_grasping.emg_classification import EMGClassifier
+from franka_emg_grasping.emg_classification_refactored import EMGClassifier
 
 from DataCollector.ClassificationIndicatorWindow import ClassificationsWindow
 
@@ -33,6 +34,26 @@ filename_ = os.path.basename(__file__).replace('.py', '')
 default_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_8_classes_2_data_grasping_ungrasping_5_20250418_1636_window_200_step_50_20250418_175135.pkl'
 # default_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_20_classes_3_data_relaxing_grasping_opening_window_200_step_50_20250422_172557.pkl'
 # default_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_20_classes_3_data_relaxing_grasping_opening_all_data_window_200_step_50_20250422_182814.pkl'
+
+# RF:
+# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_100_step_50_20250424_135118.pkl'
+# Best:
+default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_131144.pkl'
+# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_window_200_step_5_20250515_pq171019.pkl'
+# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_10_classes_2_data_relaxing_grasping_window_200_step_5_20250515_171427.pkl'
+# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_3_data_relaxing_grasping_opening_window_200_step_50_20250515_154319.pkl'
+
+# Relaxing and Grasping trained as one class:
+# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_window_200_step_50_20250515_164630.pkl'
+
+# Time features only:
+# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_window_100_step_50_20250515_151112.pkl'
+# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_3_data_relaxing_grasping_opening_window_200_step_50_20250515_152731.pkl'
+
+default_mlp_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\mlp_model_act_relu_classes_2_data_relaxing_grasping_window_200_step_5_20250516_121338.pkl'
+default_mlp_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\mlp_model_act_relu_classes_3_data_relaxing_grasping_opening_window_200_step_5_20250516_124235.pkl'
+# default_mlp_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\mlp_model_act_relu_classes_2_data_relaxing_grasping_opening_window_200_step_5_20250516_124558.pkl'
+
 
 class TrignoBase():
     """
@@ -62,11 +83,34 @@ class TrignoBase():
         ## ----------------------------------------------------------------------
 
         print(f'[INFO] [{filename_}] Initializing classifier...')
-        self.classifier_ = emg_classification.EMGClassifier(model_file_path=default_model_path_,
-                                                            model_type='knn',
+        # self.classifier_ = EMGClassifier(model_file_path=default_model_path_,
+        #                                                     model_type='knn',
+        #                                                     window_size=200,
+        #                                                     window_sliding_step=200)
+        #                                                     # window_sliding_step=50)
+        # self.classifier_ = EMGClassifier(model_file_path=default_rf_model_path_,
+        #                                                     model_type='rf',
+        #                                                     window_size=200,
+        #                                                     window_sliding_step=200)
+        
+        # self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'knn', 'model_file_path': default_model_path_}],
+        #                                                     window_size=200,
+        #                                                     window_sliding_step=200)
+        # self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'rf', 'model_file_path': default_rf_model_path_}],
+        #                                                     window_size=200,
+        #                                                     window_sliding_step=200)
+        # self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'rf', 'model_file_path': default_rf_model_path_},
+        #                                                    {'model_type': 'rf', 'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_10_classes_2_data_relaxing_grasping_window_200_step_5_20250515_171427.pkl'}],
+        #                                                     window_size=200,
+        #                                                     window_sliding_step=200)
+        # self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'mlp', 'model_file_path': default_mlp_model_path_}],
+        #                                                     window_size=200,
+        #                                                     window_sliding_step=200)
+        self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'rf', 'model_file_path': default_rf_model_path_},
+                                                           {'model_type': 'rf', 'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_10_classes_2_data_relaxing_grasping_window_200_step_5_20250515_171427.pkl'},
+                                                           {'model_type': 'knn', 'model_file_path': default_model_path_}],
                                                             window_size=200,
                                                             window_sliding_step=200)
-                                                            # window_sliding_step=50)
         print(f'[INFO] [{filename_}] Loading pretrained KNN model')
         self.classifier_.load_model()
         
@@ -78,7 +122,8 @@ class TrignoBase():
         # TODO: get following from sensor mode:
         self.dt = 0.001
         
-        self.class_ids = self.classifier_.model.classes_
+        # self.class_ids = self.classifier_.model.classes_
+        self.class_ids = self.classifier_.classes
         # Note: for now, assuming max. three classes:
         self.class_colors = dict(zip(self.class_ids, ['grey', 'green', 'purple']))
 
@@ -87,7 +132,10 @@ class TrignoBase():
         ## UDP Parameters and Initialization
         ## ----------------------------------------------------------------------
 
+        # frankaNUC:
         self.udp_ip = '10.157.174.66'
+        # NeuroNUC:
+        # self.udp_ip = '10.157.174.176'
         self.udp_output_port = 7000
         self.udp_output_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -313,9 +361,9 @@ class TrignoBase():
                 # elements, each of which contain the channel's last 30 readings.
                 if len(self.emg_queue) > 0:
                     if self.debug:
-                        new_data_point_start_time = time.time()
-                        print(f'[DEBUG] [{filename_}] Class. Thread: Time elapsed since last new data point: \n{time.time() - new_data_point_start_time:.10f}')
+                        print(f'[DEBUG] [{filename_}] Class. Thread: Time elapsed since last new data batch: \n{(time.time() - new_data_point_start_time) * 1000:.2f}ms')
                         print(f'[DEBUG] [{filename_}] self.iteration: {self.iteration}')
+                        new_data_point_start_time = time.time()
 
                     ## Grab latest data point from sensor:
                     if self.debug:
@@ -330,7 +378,8 @@ class TrignoBase():
                         data_deque_population_start_time = time.time()
                     try:
                         for channel_index in range(self.num_channels):
-                            self.data_deques[channel_index].append(incData[channel_index][-1])
+                            # self.data_deques[channel_index].append(incData[channel_index][-1])
+                            self.data_deques[channel_index].extend(incData[channel_index].tolist())
                     except IndexError:
                         print(f'[WARN] [{filename_}] Encountered index -1 error. Skipping processing...')
                         continue
@@ -362,17 +411,30 @@ class TrignoBase():
                             if self.debug:
                                 feature_extraction_start_time = time.time()
                             features_vector = self.classifier_.get_features_vector(self.window_values_df)
+                            # features_vector = self.classifier_.get_time_features_vector(self.window_values_df)
 
                             if self.debug:
                                 print(f'[DEBUG] [{filename_}] Feature extraction time: {time.time() - feature_extraction_start_time}')
                                 inference_start_time = time.time()
 
-                            predicted_window_class = self.classifier_.model.predict(features_vector.reshape(-1, 1).T).item()
+                            # predicted_window_class = self.classifier_.model.predict(features_vector.reshape(-1, 1).T).item()
+                            # predicted_window_class = self.classifier_.predict(features_vector.reshape(-1, 1).T).item()
+                            
+                            try:
+                                predicted_window_class = self.classifier_.predict(features_vector.reshape(-1, 1).T)
+                            except ValueError:
+                                print(f'[WARN] [{filename_}] Possible got NaN values in feature vector. ' + \
+                                      f'Skipping computation...')
+                                continue
+                            if predicted_window_class is None:
+                                continue
+                            # else:
+                            #     predicted_window_class = predicted_window_class.item()
                             if self.debug:
                                 print(f'[DEBUG] [{filename_}] Inference time: {time.time() - inference_start_time}')
                                 print(f'[DEBUG] [{filename_}] Predicted class: {predicted_window_class}')
                                 print()
-                                
+
                             # Send result over UDP message:
                             message = {'class': predicted_window_class, 'timestamp': time.time()}
                             message = json.dumps(message, indent = 4)
@@ -381,7 +443,6 @@ class TrignoBase():
                             message = message.encode()
                             self.udp_output_socket.sendto(message, (self.udp_ip, self.udp_output_port))
 
-                            
                             if self.debug:
                                 print(f'[DEBUG] [{filename_}] Full classification (w/ UDP) time: {time.time() - classification_start_time}')
                     
@@ -419,8 +480,9 @@ if __name__ == '__main__':
     pipelinetext = base.PipelineState_Callback()
     print(f'[INFO] [{filename_}] Pipeline state: {pipelinetext}')
 
-    print(f'[INFO] [{filename_}] Press the "s" key to start data collection and classification')
+    print(f'[INFO] [{filename_}] Press the "b" key to start data collection and classification')
     print(f'[INFO] [{filename_}] Press the "p" key to pause data collection and classification')
+    print(f'[INFO] [{filename_}] Press the "q" key to stop the program')
     paused = True
     try:
         while True:
@@ -436,12 +498,12 @@ if __name__ == '__main__':
                 base.csv_writer.data = base.DataHandler.allcollectiondata
                 
                 print()
-                print(f'[INFO] [{filename_}] Press the "s" key to start data collection and classification')
+                print(f'[INFO] [{filename_}] Press the "b" key to start data collection and classification')
                 print(f'[INFO] [{filename_}] Press the "p" key to pause data collection and classification')
                 print(f'[INFO] [{filename_}] Press the "e" key to export collected data')
                 print(f'[INFO] [{filename_}] Press the "q" key to stop the program')
 
-            if paused and keyboard.is_pressed('s'):
+            if paused and keyboard.is_pressed('b'):
                 paused = False
                 configured = base.ConfigureCollectionOutput()
                 if configured:
