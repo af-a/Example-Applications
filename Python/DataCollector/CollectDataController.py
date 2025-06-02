@@ -79,59 +79,61 @@ class PlottingManagement():
 
         self.streamYTData = False # set to True to stream data in (T, Y) format (T = time stamp in seconds Y = sample value)
 
-        ## ----------------------------------------------------------------------
-        ## Classifier Initialization
-        ## ----------------------------------------------------------------------
-
-        print(f'[INFO] [{filename_}] Initializing classifier...')
-        # self.classifier_ = emg_classification.EMGClassifier(model_file_path='C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_131144.pkl',
-        #                                                             model_type='rf',
-        #                                                             window_size=100,
-        #                                                             window_sliding_step=50)
-        # self.classifier_ = emg_classification.EMGClassifier(model_file_path='C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_100_step_50_20250424_135118.pkl',
-        #                                                     model_type='rf',
-        #                                                     window_size=100,
-        #                                                     window_sliding_step=50)
-        self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'rf', 'model_file_path': default_rf_model_path_},
-                                                           {'model_type': 'rf', 'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_10_classes_2_data_relaxing_grasping_window_200_step_5_20250515_171427.pkl'},
-                                                           {'model_type': 'knn', 'model_file_path': default_model_path_}],
-                                                            window_size=200,
-                                                            window_sliding_step=200)
-        print(f'[INFO] [{filename_}] Loading pretrained model')
-        self.classifier_.load_model()
-        
-        # self.classifier_2_ = emg_classification.EMGClassifier(model_file_path="C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_8_classes_2_data_grasping_ungrasping_5_20250418_1643_window_200_step_50_20250418_172419.pkl",
-        #                                                     model_type='knn',
-        #                                                     window_size=200,
-        #                                                     window_sliding_step=50)
-        # self.classifier_2_.load_model()
-        
-        # TODO: Remove hard-coded value:
-        self.num_channels = 4
-        self.data_point_limit = self.classifier_.window_size
-        self.data_deques = [deque(maxlen=self.data_point_limit) for _ in range(self.num_channels)]
-        self.current_t, self.iteration = 0.0, 0
-        # TODO: get following from sensor mode:
-        self.dt = 0.001
-        
-        # self.class_ids = self.classifier_.model.classes_
-        self.class_ids = self.classifier_.classes
-        # Note: for now, assuming max. three classes:
-        self.class_colors = dict(zip(self.class_ids, ['grey', 'green', 'purple']))
-        
-        ## ----------------------------------------------------------------------
-        ## UDP Parameters and Initialization
-        ## ----------------------------------------------------------------------
-
-        # frankaNUC:
-        self.udp_ip = '10.157.174.66'
-        # NeuroNUC:
-        # self.udp_ip = '10.157.174.176'
-        self.udp_output_port = 7000
-        self.udp_output_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
         self.with_classifications_indicator = with_classifications_indicator
         self.debug = debug
+        self.no_classification = no_classification
+
+        if not self.no_classification:
+            ## ----------------------------------------------------------------------
+            ## Classifier Initialization
+            ## ----------------------------------------------------------------------
+
+            print(f'[INFO] [{filename_}] Initializing classifier...')
+            # self.classifier_ = emg_classification.EMGClassifier(model_file_path='C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_131144.pkl',
+            #                                                             model_type='rf',
+            #                                                             window_size=100,
+            #                                                             window_sliding_step=50)
+            # self.classifier_ = emg_classification.EMGClassifier(model_file_path='C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_100_step_50_20250424_135118.pkl',
+            #                                                     model_type='rf',
+            #                                                     window_size=100,
+            #                                                     window_sliding_step=50)
+            self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'rf', 'model_file_path': default_rf_model_path_},
+                                                            {'model_type': 'rf', 'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_10_classes_2_data_relaxing_grasping_window_200_step_5_20250515_171427.pkl'},
+                                                            {'model_type': 'knn', 'model_file_path': default_model_path_}],
+                                                                window_size=200,
+                                                                window_sliding_step=200)
+            print(f'[INFO] [{filename_}] Loading pretrained model')
+            self.classifier_.load_model()
+            
+            # self.classifier_2_ = emg_classification.EMGClassifier(model_file_path="C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_8_classes_2_data_grasping_ungrasping_5_20250418_1643_window_200_step_50_20250418_172419.pkl",
+            #                                                     model_type='knn',
+            #                                                     window_size=200,
+            #                                                     window_sliding_step=50)
+            # self.classifier_2_.load_model()
+            
+            # TODO: Remove hard-coded value:
+            self.num_channels = 4
+            self.data_point_limit = self.classifier_.window_size
+            self.data_deques = [deque(maxlen=self.data_point_limit) for _ in range(self.num_channels)]
+            self.current_t, self.iteration = 0.0, 0
+            # TODO: get following from sensor mode:
+            self.dt = 0.001
+            
+            # self.class_ids = self.classifier_.model.classes_
+            self.class_ids = self.classifier_.classes
+            # Note: for now, assuming max. three classes:
+            self.class_colors = dict(zip(self.class_ids, ['grey', 'green', 'purple']))
+            
+            ## ----------------------------------------------------------------------
+            ## UDP Parameters and Initialization
+            ## ----------------------------------------------------------------------
+
+            # frankaNUC:
+            self.udp_ip = '10.157.174.66'
+            # NeuroNUC:
+            # self.udp_ip = '10.157.174.176'
+            self.udp_output_port = 7000
+            self.udp_output_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def streaming(self):
         """This is the data processing thread"""
@@ -326,8 +328,9 @@ class PlottingManagement():
             self.t1 = threading.Thread(target=self.streaming)
             self.t1.start()
             
-            self.tc = threading.Thread(target=self.classification_thread)
-            self.tc.start()
+            if not self.no_classification:
+                self.tc = threading.Thread(target=self.classification_thread)
+                self.tc.start()
 
         # Start YT data stream (with time values)
         else:
