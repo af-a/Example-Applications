@@ -64,7 +64,8 @@ default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-gr
 
 
 class PlottingManagement():
-    def __init__(self, collect_data_window, metrics, emgplot=None, with_classifications_indicator=False, debug=False):
+    
+    def __init__(self, collect_data_window, metrics, emgplot=None, with_classifications_indicator=False, debug=False, no_classification=False):
         self.base = TrignoBase(self)
         self.collect_data_window = collect_data_window
         self.EMGplot = emgplot
