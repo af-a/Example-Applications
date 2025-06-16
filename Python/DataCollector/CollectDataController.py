@@ -17,51 +17,18 @@ import os
 import json
 import socket
 import pandas as pd
-from franka_emg_grasping import emg_classification
-from franka_emg_grasping.emg_classification_refactored import EMGClassifier
+
+from franka_emg_grasping.emg_classification import EMGClassifier
+
+## Fix for Windows 11:
+os.environ['OMP_NUM_THREADS'] = '1'
 
 filename_ = os.path.basename(__file__).replace('.py', '')
 
 # KNN:
 default_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_8_classes_2_data_grasping_ungrasping_5_20250418_1636_window_200_step_50_20250418_175135.pkl'
-# default_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_20_classes_3_data_relaxing_grasping_opening_window_200_step_50_20250422_172557.pkl'
-# default_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_20_classes_3_data_relaxing_grasping_opening_all_data_window_200_step_50_20250422_182814.pkl'
-
 # RF:
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_grasping_ungrasping_5_20250418_1636_window_200_step_50_20250424_111228.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_3_data_relaxing_grasping_opening_window_200_step_50_20250424_120054.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_1000_classes_3_data_relaxing_grasping_opening_window_200_step_50_20250424_122046.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_1000_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_123422.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_1000_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_130525.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_131144.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_50_step_50_20250424_132142.pkl'
-default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_100_step_50_20250424_135118.pkl'
-
-# ## Current best (UPDATE: before data point fix):
-# self.classifier_ = emg_classification.EMGClassifier(model_file_path='C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_131144.pkl',
-#                                                             model_type='rf',
-#                                                             window_size=100,
-#                                                             window_sliding_step=50)
-
-# RF:
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_100_step_50_20250424_135118.pkl'
-# Best:
 default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_131144.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_window_200_step_5_20250515_pq171019.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_10_classes_2_data_relaxing_grasping_window_200_step_5_20250515_171427.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_3_data_relaxing_grasping_opening_window_200_step_50_20250515_154319.pkl'
-
-# Relaxing and Grasping trained as one class:
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_window_200_step_50_20250515_164630.pkl'
-
-# Time features only:
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_window_100_step_50_20250515_151112.pkl'
-# default_rf_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_3_data_relaxing_grasping_opening_window_200_step_50_20250515_152731.pkl'
-
-# default_mlp_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\mlp_model_act_relu_classes_2_data_relaxing_grasping_window_200_step_5_20250516_121338.pkl'
-# default_mlp_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\mlp_model_act_relu_classes_3_data_relaxing_grasping_opening_window_200_step_5_20250516_124235.pkl'
-# default_mlp_model_path_ = 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\mlp_model_act_relu_classes_2_data_relaxing_grasping_opening_window_200_step_5_20250516_124558.pkl'
-
 
 class PlottingManagement():
     
@@ -81,8 +48,8 @@ class PlottingManagement():
         self.streamYTData = False # set to True to stream data in (T, Y) format (T = time stamp in seconds Y = sample value)
 
         self.with_classifications_indicator = with_classifications_indicator
-        self.debug = debug
         self.no_classification = no_classification
+        self.debug = debug
 
         if not self.no_classification:
             ## ----------------------------------------------------------------------
@@ -90,27 +57,36 @@ class PlottingManagement():
             ## ----------------------------------------------------------------------
 
             print(f'[INFO] [{filename_}] Initializing classifier...')
-            # self.classifier_ = emg_classification.EMGClassifier(model_file_path='C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_200_step_50_20250424_131144.pkl',
-            #                                                             model_type='rf',
-            #                                                             window_size=100,
-            #                                                             window_sliding_step=50)
-            # self.classifier_ = emg_classification.EMGClassifier(model_file_path='C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_100_classes_2_data_relaxing_grasping_opening_window_100_step_50_20250424_135118.pkl',
-            #                                                     model_type='rf',
-            #                                                     window_size=100,
-            #                                                     window_sliding_step=50)
+            ## Current best (02.06.25):
             self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'rf', 'model_file_path': default_rf_model_path_},
-                                                            {'model_type': 'rf', 'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_10_classes_2_data_relaxing_grasping_window_200_step_5_20250515_171427.pkl'},
-                                                            {'model_type': 'knn', 'model_file_path': default_model_path_}],
+                                                               {'model_type': 'rf', 'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\rf_model_n_10_classes_2_data_relaxing_grasping_window_200_step_5_20250515_171427.pkl'},
+                                                               {'model_type': 'knn', 'model_file_path': default_model_path_}],
                                                                 window_size=200,
                                                                 window_sliding_step=200)
+           
+            ## torch MLP Best:
+            # self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'mlp_torch', 'num_classes': 2, 'num_hidden_layers': 2, 'num_hidden_units_per_layer': 20,
+            #                                                     'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\torch_mlp_nn_epochs_100_batches_4_relu_classes_2_data_relaxing_grasping_opening_window_200_step_5_20250610_180353.pt'},
+            #                                                    ],
+            #                                                     window_size=200,
+            #                                                     window_sliding_step=200)
+           
+            ## torch MLP Second Best:
+            # self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'mlp_torch', 'num_classes': 2, 'num_hidden_layers': 2, 'num_hidden_units_per_layer': 20,
+            #                                                     'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\torch_mlp_nn_epochs_100_batches_4_relu_classes_2_data_relaxing_grasping_opening_window_200_step_5_20250612_132238.pt'},
+            #                                                    ],
+            #                                                     window_size=200,
+            #                                                     window_sliding_step=200)
+            
+            ## sklearn MLP best:
+            # self.classifier_ = EMGClassifier(model_spec_dicts=[{'model_type': 'mlp',
+            #                                                     'model_file_path': 'C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\mlp_model_act_relu_classes_2_data_relaxing_grasping_opening_window_200_step_5_20250610_164041.pkl'},
+            #                                                    ],
+            #                                                     window_size=200,
+            #                                                     window_sliding_step=200)
+
             print(f'[INFO] [{filename_}] Loading pretrained model')
             self.classifier_.load_model()
-            
-            # self.classifier_2_ = emg_classification.EMGClassifier(model_file_path="C:\\Users\\go98voq\\automatica_2025_win\\franka-emg-grasping\\dev\\output_data\\knn_model_n_8_classes_2_data_grasping_ungrasping_5_20250418_1643_window_200_step_50_20250418_172419.pkl",
-            #                                                     model_type='knn',
-            #                                                     window_size=200,
-            #                                                     window_sliding_step=50)
-            # self.classifier_2_.load_model()
             
             # TODO: Remove hard-coded value:
             self.num_channels = 4
@@ -124,13 +100,16 @@ class PlottingManagement():
             self.class_ids = self.classifier_.classes
             # Note: for now, assuming max. three classes:
             self.class_colors = dict(zip(self.class_ids, ['grey', 'green', 'purple']))
+            self.class_text_labels = dict(zip(self.class_ids, ['', 'Grasping!', '']))
             
             ## ----------------------------------------------------------------------
             ## UDP Parameters and Initialization
             ## ----------------------------------------------------------------------
 
-            # frankaNUC:
-            self.udp_ip = '10.157.174.66'
+            # # frankaNUC:
+            # self.udp_ip = '10.157.174.66'
+            # frankaNUC Switch:
+            self.udp_ip = '10.181.238.55'
             # NeuroNUC:
             # self.udp_ip = '10.157.174.176'
             self.udp_output_port = 7000
@@ -162,7 +141,6 @@ class PlottingManagement():
             #     print(f'[DEBUG] len(incData): {len(incData)}')
             #     print(f'[DEBUG] incData[0].shape: {incData[0].shape}')
             #     print(f'[DEBUG] incData[all_channels][-1]: {[incData[channel_index][-1] for channel_index in self.base.emgChannelsIdx]}')
-            #     # print(f'[DEBUG] incData[0][-1]: {incData[0][-1]}')
             #     print(f'[DEBUG] incData: {incData}')
 
             self.updatemetrics()
@@ -216,16 +194,12 @@ class PlottingManagement():
                     print(f'[DEBUG] [{filename_}] Data deque population time: \n{time.time() - data_deque_population_start_time:.10f}')
 
                 self.iteration += 1
-                
                 predicted_window_class = None
-                # if self.with_classifications_indicator and classification_start_time is not None and (time.time() - classification_start_time > 1.0):
-                #     self.collect_data_window.classifications_window.set_color()
                 
                 if self.debug:
                     print(f'[DEBUG] [{filename_}] Time elapsed since last classification: {round(time_elapsed_since_last_classification)}ms')
 
                 ## Run classification on latest data window:
-                # if (self.iteration % self.classifier_.window_sliding_step) == 0 and self.iteration != 0:
                 if round(time_elapsed_since_last_classification) > self.classifier_.window_sliding_step:
                     classification_start_time = time.time()
                     time_elapsed_since_last_classification = 0.
@@ -242,17 +216,12 @@ class PlottingManagement():
                         if self.debug:
                             feature_extraction_start_time = time.time()
                         features_vector = self.classifier_.get_features_vector(self.window_values_df)
+                        # features_vector = self.classifier_.get_time_features_vector(self.window_values_df)
 
                         if self.debug:
                             print(f'[DEBUG] [{filename_}] Feature extraction time: {time.time() - feature_extraction_start_time}')
                             inference_start_time = time.time()
-
-                        # predicted_window_class = self.classifier_.model.predict(features_vector.reshape(-1, 1).T).item()
-                        # predicted_window_class_2 = self.classifier_2_.model.predict(features_vector.reshape(-1, 1).T).item()
                         
-                        # predicted_window_class = self.classifier_.model.predict(features_vector.reshape(-1, 1).T).item()
-                        # predicted_window_class = self.classifier_.predict(features_vector.reshape(-1, 1).T).item()
-                            
                         try:
                             predicted_window_class = self.classifier_.predict(features_vector.reshape(-1, 1).T)
                         except ValueError:
@@ -261,6 +230,14 @@ class PlottingManagement():
                             continue
                         if predicted_window_class is None:
                             continue
+
+                        # ## Test: add intentional delay for very first models for more stable predictions:
+                        # inference_time_threshold = 0.05
+                        # inference_time = time.time() - inference_start_time
+                        # if inference_time < inference_time_threshold:
+                        #     time_difference = inference_time_threshold - inference_time
+                        #     print(f'[DEBUG] [{filename_}] Intentionally delaying loop by: {time_difference}')
+                        #     time.sleep(time_difference)
                         
                         if self.debug:
                             print(f'[DEBUG] [{filename_}] Inference time: {time.time() - inference_start_time}')
@@ -278,6 +255,7 @@ class PlottingManagement():
                         # Set classification window to predicted class color
                         if self.with_classifications_indicator:
                             self.collect_data_window.classifications_window.set_color(color=self.class_colors[predicted_window_class])
+                            self.collect_data_window.classifications_window.set_text(text=self.class_text_labels[predicted_window_class])
                         
                         if self.debug:
                             print(f'[DEBUG] [{filename_}] Full classification (w/ UDP) time: {time.time() - classification_start_time}')
