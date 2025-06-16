@@ -15,6 +15,9 @@ import pandas as pd
 # from franka_emg_grasping.emg_classification import EMGClassifier
 from franka_emg_grasping.emg_classification_refactored import EMGClassifier
 
+## Fix for Windows 11:
+os.environ['OMP_NUM_THREADS'] = '1'
+
 from DataCollector.ClassificationIndicatorWindow import ClassificationsWindow
 
 ## Delsys API imports:
