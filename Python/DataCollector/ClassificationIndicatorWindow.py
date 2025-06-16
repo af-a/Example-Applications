@@ -29,7 +29,17 @@ class ClassificationsWindow(QWidget):
         palette.setColor(QPalette.Window, QColor('grey'))
         self.setPalette(palette)
 
+        self.text_label = QLabel()
+        self.text_label.setStyleSheet('font-size:40px; font-weight:bold;')
+        self.text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.text_label.setAlignment(Qt.AlignCenter)
+        self.text_label.setText('')
+        layout.addWidget(self.text_label)
+
     def set_color(self, color='grey'):
         palette = self.palette()
         palette.setColor(QPalette.Window, QColor(color))
         self.setPalette(palette)
+
+    def set_text(self, text=''):
+        self.text_label.setText(text)
